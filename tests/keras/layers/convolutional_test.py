@@ -241,9 +241,15 @@ def test_separable_conv_2d():
 @keras_test
 def test_globalpooling_1d():
     layer_test(pooling.GlobalMaxPooling1D,
-               input_shape=(3, 4, 5))
+               input_shape=(3, 4, 5), fixed_batch_size=True)
     layer_test(pooling.GlobalAveragePooling1D,
-               input_shape=(3, 4, 5))
+               input_shape=(3, 4, 5), fixed_batch_size=True)
+    layer_test(pooling.GlobalMaxPooling1D,
+               input_shape=(3, 4, 5), kwargs=dict(input_dim=3, axis=1),
+               fixed_batch_size=True)
+    layer_test(pooling.GlobalAveragePooling1D,
+               input_shape=(3, 4, 5), kwargs=dict(input_dim=3, axis=2),
+               fixed_batch_size=True)
 
 
 @keras_test
