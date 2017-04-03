@@ -240,16 +240,26 @@ def test_separable_conv_2d():
 
 @keras_test
 def test_globalpooling_1d():
+    x3d = np.arange(32, dtype='float32').reshape(4, 2, 4)
     layer_test(pooling.GlobalMaxPooling1D,
-               input_shape=(3, 4, 5), fixed_batch_size=True)
+               input_data=x3d,
+               expected_output=x3d.max(axis=1),
+               kwargs=dict(ndim=x3d.ndim, axis=1))
     layer_test(pooling.GlobalAveragePooling1D,
-               input_shape=(3, 4, 5), fixed_batch_size=True)
+               input_data=x3d,
+               expected_output=x3d.mean(axis=1),
+               kwargs=dict(ndim=x3d.ndim, axis=1))
     layer_test(pooling.GlobalMaxPooling1D,
-               input_shape=(3, 4, 5), kwargs=dict(input_dim=3, axis=1),
-               fixed_batch_size=True)
-    layer_test(pooling.GlobalAveragePooling1D,
-               input_shape=(3, 4, 5), kwargs=dict(input_dim=3, axis=2),
-               fixed_batch_size=True)
+               input_data=x3d,
+               expected_output=x3d.max(axis=2),
+               kwargs=dict(ndim=x3d.ndim, axis=2))
+
+    x4d = np.arange(32, dtype='float32').reshape(4, 2, 2, 2)
+    for ax in range(1, 4):
+        layer_test(pooling.GlobalMaxPooling1D,
+                   input_data=x4d,
+                   expected_output=x4d.max(axis=ax),
+                   kwargs=dict(ndim=x4d.ndim, axis=ax))
 
 
 @keras_test

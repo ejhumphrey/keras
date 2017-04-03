@@ -439,12 +439,14 @@ class _GlobalPooling1D(Layer):
     Note: `input_dim` is superseded by `input_shape`, if given.
     """
 
-    def __init__(self, input_dim=3, axis=1, **kwargs):
-        input_dim = len(kwargs.get('input_shape', [None] * input_dim))
-        if axis > input_dim - 1:
-            raise ValueError("`axis` must be <= `input_dim` - 1")
+    # Argument defaults set for backwards compatibility -- should be required
+    # in the future.
+    def __init__(self, ndim=3, axis=1, **kwargs):
+        ndim = len(kwargs.get('input_shape', [None] * ndim))
+        if axis > ndim - 1:
+            raise ValueError("`axis` must be <= `ndim` - 1")
         super(_GlobalPooling1D, self).__init__(**kwargs)
-        self.input_spec = InputSpec(ndim=input_dim)
+        self.input_spec = InputSpec(ndim=ndim)
         self.axis = axis
 
     def compute_output_shape(self, input_shape):
@@ -453,7 +455,7 @@ class _GlobalPooling1D(Layer):
         return tuple(output_shape)
 
     def get_config(self):
-        config = {'axis': self.axis}
+        config = {'axis': self.axis, 'ndim': self.input_spec.ndim}
         base_config = super(_GlobalPooling1D, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
