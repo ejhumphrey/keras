@@ -435,47 +435,58 @@ class AveragePooling3D(_Pooling3D):
 
 class _GlobalPooling1D(Layer):
     """Abstract class for different global pooling 1D layers.
+
+    Note: `input_dim` is superseded by `input_shape`, if given.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, input_dim=3, axis=1, **kwargs):
+        input_dim = len(kwargs.get('input_shape', [None] * input_dim))
+        if axis > input_dim - 1:
+            raise ValueError("`axis` must be <= `input_dim` - 1")
         super(_GlobalPooling1D, self).__init__(**kwargs)
-        self.input_spec = InputSpec(ndim=3)
+        self.input_spec = InputSpec(ndim=input_dim)
+        self.axis = axis
 
     def compute_output_shape(self, input_shape):
-        return (input_shape[0], input_shape[2])
+        output_shape = list(input_shape)
+        output_shape.pop(self.axis)
+        return tuple(output_shape)
+
+    def get_config(self):
+        config = {'axis': self.axis}
+        base_config = super(_GlobalPooling1D, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
     def call(self, inputs):
         raise NotImplementedError
 
 
 class GlobalAveragePooling1D(_GlobalPooling1D):
-    """Global average pooling operation for temporal data.
+    """Global average pooling operation over a given dimension.
 
     # Input shape
-        3D tensor with shape: `(batch_size, steps, features)`.
+        Tensor with ndim=N
 
     # Output shape
-        2D tensor with shape:
-        `(batch_size, channels)`
+        Tensor with ndim=N-1
     """
 
     def call(self, inputs):
-        return K.mean(inputs, axis=1)
+        return K.mean(inputs, axis=self.axis)
 
 
 class GlobalMaxPooling1D(_GlobalPooling1D):
-    """Global max pooling operation for temporal data.
+    """Global max pooling operation over a given dimension.
 
     # Input shape
-        3D tensor with shape: `(batch_size, steps, features)`.
+        Tensor with ndim=N
 
     # Output shape
-        2D tensor with shape:
-        `(batch_size, channels)`
+        Tensor with ndim=N-1
     """
 
     def call(self, inputs):
-        return K.max(inputs, axis=1)
+        return K.max(inputs, axis=self.axis)
 
 
 class _GlobalPooling2D(Layer):
